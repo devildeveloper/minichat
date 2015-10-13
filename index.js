@@ -77,7 +77,8 @@ io.on('connection', function(socket){
 		cb({result:'joined to room '+room});
 	})
 	socket.on('join_movil',function(room){
-		socket.join('ticket:'+room);
+		console.log(room)
+		socket.join(room);
 		socket.emit("response_join",{result:'joined to room ticket:'+room});
 	})	
 	//disconnect
