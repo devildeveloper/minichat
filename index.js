@@ -94,7 +94,7 @@ io.on('connection', function(socket){
 				cb({error:error});
 			}else{
 				cb({error:error});
-				socket.broadcast.in('ticket:'+data.ticketId).emit('close_ticket',{body:'Conversación Finalizada',ticket:data.ticketId})
+				socket.broadcast.in('ticket:'+data.ticketId).emit('close_ticket',{body:'La conversación ha sido finalizada, gracias por comunicarse con nosotros. Para volverse a comunicar solo agregue un nuevo mensaje.',ticket:data.ticketId})
 			}
 		})
 	})
