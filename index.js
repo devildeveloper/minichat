@@ -118,8 +118,13 @@ io.on('connection', function(socket){
 			if(error){
 				cb({error:error,success:0,body:body});
 			}else{
+
 				cb({error:0,success:1,body:body});
 				socket.broadcast.in('ticket:'+data.ticketId).emit('close_ticket',{body:'Conversación Finalizada',ticket:data.ticketId})
+
+				cb({error:error});
+				socket.broadcast.in('ticket:'+data.ticketId).emit('close_ticket',{body:'La conversación ha sido finalizada, gracias por comunicarse con nosotros. Para volverse a comunicar solo agregue un nuevo mensaje.',ticket:data.ticketId})
+
 			}
 		})
 	})
