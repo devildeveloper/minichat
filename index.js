@@ -14,6 +14,29 @@ io.set('origins', '*:*');
 io.on('connection', function(socket){
 	console.log('a user connected');
 
+	socket.on('asignTicket',function(userId,ticketId,companyId){
+		console.log(userId+' '+companyId+' '+ticketId);
+		request(
+				{
+					method : 'PUT',
+					//http://localhost:1337/ticket/1?status=1&employee=2&rank=0
+					uri    : basePath+'/ticket/'+ticketId+
+							'?status=1&employee='+userId+
+							'&rank=0'
+				} 
+				,function(error,response,body){
+					if(error){
+						//socket.emit("message_error",error);
+						socket.emit('response_message',{err:error,success:false})
+					}else if(body.error){
+						//socket.emit("message_created",response);
+						socket.emit('response_message',{err:body.error,success:false})
+					}else{
+						socket.broadcast.in(companyId+':1').emit('asignmentTicket',{ticket:ticketId});
+					}
+				})		
+		
+	})
 	socket.emit('connected',{key:'as'});
 	//creando el ticket
 	socket.on('create_ticket',function(data){
@@ -73,6 +96,7 @@ io.on('connection', function(socket){
 		cb({err:0,success:true})
 	});	
 	socket.on('join',function(room,cb){
+		console.log(room)
 		socket.join(room);
 		cb({result:'joined to room '+room});
 	})
@@ -90,10 +114,11 @@ io.on('connection', function(socket){
 			method   : 'GET',
 			uri      : basePath+'/ticket/closeTicket?ticketId='+data.ticketId
 		},function(error,response,body){
+			console.log(body)
 			if(error){
-				cb({error:error});
+				cb({error:error,success:0,body:body});
 			}else{
-				cb({error:error});
+				cb({error:0,success:1,body:body});
 				socket.broadcast.in('ticket:'+data.ticketId).emit('close_ticket',{body:'Conversación Finalizada',ticket:data.ticketId})
 			}
 		})
