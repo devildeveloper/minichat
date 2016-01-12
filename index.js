@@ -4,7 +4,7 @@ var io = require('socket.io')(http);
 var request = require('request');
 
 var port = process.env.PORT || 3000
-var basePath = "http://localhost:1337" ;
+var basePath = "http://dilooapp.com" ;
 /*
 app.get('/', function(req, res){
   res.sendfile('index.html');
@@ -23,7 +23,7 @@ io.on('connection', function(socket){
 					uri    : basePath+'/ticket/'+ticketId+
 							'?status=1&employee='+userId+
 							'&rank=0'
-				} 
+				}
 				,function(error,response,body){
 					if(error){
 						//socket.emit("message_error",error);
@@ -34,8 +34,8 @@ io.on('connection', function(socket){
 					}else{
 						socket.broadcast.in(companyId+':1').emit('asignmentTicket',{ticket:ticketId});
 					}
-				})		
-		
+				})
+
 	})
 	socket.emit('connected',{key:'as'});
 	//creando el ticket
@@ -49,7 +49,7 @@ io.on('connection', function(socket){
 								'&area=1&company='+data.company+
 								'&userId='+data.userId+
 								'&author='+data.author
-				} 
+				}
 				,function(error,response,body){
 
 					var body =JSON.parse(body);
@@ -62,10 +62,10 @@ io.on('connection', function(socket){
 						socket.join('ticket:'+body.ticket);
 						socket.broadcast.in(data.company+':'+data.area).emit('new_ticket',body);
 						socket.emit('response_ticket',{err:0,success:true,ticket:body.ticket,company:1})
-						//cb({err:0,success:true,ticket:response,company:1})						
+						//cb({err:0,success:true,ticket:response,company:1})
 					}
 				})
-	
+
 	});
 	socket.on('send_message',function(message,cb){
 		console.log(message)
@@ -76,7 +76,7 @@ io.on('connection', function(socket){
 								'&ticket='+message.ticket+
 								'&type='+message.type+
 								'&author='+message.author
-				} 
+				}
 				,function(error,response,body){
 					if(error){
 						//socket.emit("message_error",error);
@@ -94,7 +94,7 @@ io.on('connection', function(socket){
 	socket.on('send_message_web',function(message,cb){
 		io.to('ticket:'+message.ticket).emit('new_message',message);
 		cb({err:0,success:true})
-	});	
+	});
 	socket.on('join',function(room,cb){
 		console.log(room)
 		socket.join(room);
@@ -104,11 +104,11 @@ io.on('connection', function(socket){
 		console.log(room)
 		socket.join(room);
 		socket.emit("response_join",{result:'joined to room ticket:'+room});
-	})	
+	})
 	//disconnect
 	socket.on('disconnect',function(socket){
 		console.log("user out");
-	});	
+	});
 	socket.on('closeTicket',function(data,cb){
 		request({
 			method   : 'GET',
