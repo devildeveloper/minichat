@@ -4,7 +4,7 @@ var io = require('socket.io')(http);
 var request = require('request');
 
 var port = process.env.PORT || 3000
-var basePath = "http://dilooapp.com" ;
+var basePath = "http://40.114.91.208:1337" ;
 /*
 app.get('/', function(req, res){
   res.sendfile('index.html');
