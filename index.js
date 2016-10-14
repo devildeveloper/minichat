@@ -1,14 +1,19 @@
 var app = require('express')();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')(http,{
+	pingTimeout:40000
+	,pingInterval:25000
+});
 var request = require('request');
 
 var port = process.env.PORT || 3000
-var basePath = "http://40.114.91.208:1337" ;
+//var basePath = "http://40.114.91.208:1337" ;
+var basePath = "http://localhost:1337";
 /*
 app.get('/', function(req, res){
   res.sendfile('index.html');
 }); */
+
 io.set('origins', '*:*');
 
 io.on('connection', function(socket){
@@ -51,6 +56,9 @@ io.on('connection', function(socket){
 								'&author='+data.author
 				}
 				,function(error,response,body){
+
+					console.log(error);
+					console.log(body);
 
 					var body =JSON.parse(body);
 					if(error){
