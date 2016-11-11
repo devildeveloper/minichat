@@ -8,7 +8,7 @@ var request = require('request');
 
 var port = process.env.PORT || 3000
 //var basePath = "http://40.114.91.208:1337" ;
-var basePath = "http://localhost:1337";
+var basePath = "http://40.76.4.149:1337";
 /*
 app.get('/', function(req, res){
   res.sendfile('index.html');
@@ -17,10 +17,25 @@ app.get('/', function(req, res){
 io.set('origins', '*:*');
 
 io.on('connection', function(socket){
-	console.log('a user connected');
-
+	//console.log('a user connected');
+	socket.emit('connected','welcome');
+	socket.on('getMessagesForWidget',function(data,cb){
+		console.log(data.ticket);
+		request({
+			method : 'GET'
+			,uri    :  basePath+'/messages/getMessagesForWidget?ticket='+data.ticket
+		},function(error,response,body){
+                                        if(error){
+                                                //socket.emit("message_error",error);
+                                                cb({err:error,success:false})
+                                        }else{
+                                                //socket.emit("message_created",response);
+                                                cb({err:null,success:JSON.parse(body)});
+                                        }
+		});
+	});
 	socket.on('asignTicket',function(userId,ticketId,companyId){
-		console.log(userId+' '+companyId+' '+ticketId);
+		//console.log(userId+' '+companyId+' '+ticketId);
 		request(
 				{
 					method : 'PUT',
@@ -45,7 +60,7 @@ io.on('connection', function(socket){
 	socket.emit('connected',{key:'as'});
 	//creando el ticket
 	socket.on('create_ticket',function(data){
-		//console.log(data);
+		console.log(data);
 		//socket.emit('response',data)
 		request(
 				{
@@ -53,12 +68,13 @@ io.on('connection', function(socket){
 					uri    : basePath+'/api/ticket/create?message='+data.message+
 								'&area=1&company='+data.company+
 								'&userId='+data.userId+
-								'&author='+data.author
+								'&author='+data.author+
+								'&tokenFirebase='+data.firebaseToken
 				}
 				,function(error,response,body){
 
-					console.log(error);
-					console.log(body);
+					//console.log(error);
+					//console.log(body);
 
 					var body =JSON.parse(body);
 					if(error){
@@ -66,7 +82,7 @@ io.on('connection', function(socket){
 					}else if(body.error){
 						socket.emit('response_ticket',{err:body.error,success:true,ticket:0,company:1})
 					}else{
-						console.log(body)
+						//console.log(body)
 						socket.join('ticket:'+body.ticket);
 						socket.broadcast.in(data.company+':'+data.area).emit('new_ticket',body);
 						socket.emit('response_ticket',{err:0,success:true,ticket:body.ticket,company:1})
@@ -93,6 +109,7 @@ io.on('connection', function(socket){
 						//socket.emit("message_created",response);
 						socket.emit('response_message',{err:body.error,success:false})
 					}else{
+						//console.log(response);
 						socket.broadcast.in('ticket:'+message.ticket).emit('new_message',message);
 						socket.emit('response_message',{err:0,success:true})
 						//socket.emit("message_error",{message:"unknow state"});
@@ -104,7 +121,7 @@ io.on('connection', function(socket){
 		cb({err:0,success:true})
 	});
 	socket.on('join',function(room,cb){
-		console.log(room)
+		//console.log(room)
 		socket.join(room);
 		cb({result:'joined to room '+room});
 	})
@@ -118,6 +135,7 @@ io.on('connection', function(socket){
 		console.log("user out");
 	});
 	socket.on('closeTicket',function(data,cb){
+		console.log('ooo');
 		request({
 			method   : 'GET',
 			uri      : basePath+'/ticket/closeTicket?ticketId='+data.ticketId
@@ -127,7 +145,7 @@ io.on('connection', function(socket){
 				cb({error:error,success:0,body:body});
 			}else{
 				cb({error:error});
-				socket.broadcast.in('ticket:'+data.ticketId).emit('close_ticket',{body:'Ha finalizado la comunicación, gracias.',ticket:data.ticketId})
+				socket.broadcast.in('ticket:'+data.ticketId).emit('close_ticket',{body:"La conversación  ha sido finalizada, gracias por comunicarse con nosotros. Para volverse a comunicar solo agregue un nuevo mensaje.",ticket:data.ticketId})
 
 			}
 		})
